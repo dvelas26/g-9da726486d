@@ -1,0 +1,1103 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GO + REACT + AWS — Guía de estudio (Senior)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0b0b0b; --paper:#f4f1ea; --pink:#ff2e88; --cyan:#00d8ff; --yellow:#ffe600;
+    --green:#00f08a; --purple:#5a2bff; --orange:#ff5a1f;
+    --display:"Anton","Impact","Arial Narrow Bold",sans-serif;
+    --sans:"Space Grotesk","Helvetica Neue",Arial,sans-serif;
+    --serif:"Source Serif 4",Georgia,serif;
+    --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:19px;line-height:1.55}
+  a{color:inherit}
+  sup a{font-family:var(--mono);font-size:.7em;background:var(--ink);color:var(--yellow);padding:0 .3em;text-decoration:none;border-radius:2px}
+  code{font-family:var(--mono);font-size:.85em;background:rgba(0,0,0,.08);padding:.05em .3em}
+
+  /* ticker */
+  .ticker{background:var(--ink);color:var(--green);font-family:var(--mono);font-size:14px;overflow:hidden;white-space:nowrap;border-bottom:4px solid var(--pink);position:sticky;top:0;z-index:20}
+  .ticker div{display:inline-block;padding:.5em 0;animation:tick 60s linear infinite}
+  .ticker span{margin-right:3em}
+  .ticker b{color:var(--yellow)}
+  .ticker .dn{color:var(--pink)}
+  @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media (prefers-reduced-motion:reduce){.ticker div{animation:none}}
+
+  /* nav */
+  nav.toc{display:flex;flex-wrap:wrap;gap:0;border-bottom:4px solid var(--ink);font-family:var(--sans);font-weight:700;text-transform:uppercase;font-size:13px;letter-spacing:.06em}
+  nav.toc a{padding:.8em 1em;text-decoration:none;border-right:2px solid var(--ink)}
+  nav.toc a:hover{background:var(--yellow)}
+
+  /* hero */
+  .hero{display:grid;grid-template-columns:1.3fr 1fr;border-bottom:6px solid var(--ink);min-height:88vh}
+  .hero-left{padding:3vw;display:flex;flex-direction:column;justify-content:space-between;background:var(--paper)}
+  .kicker{font-family:var(--sans);font-weight:700;text-transform:uppercase;letter-spacing:.12em;font-size:14px}
+  .kicker .tag{background:var(--ink);color:var(--paper);padding:.2em .5em;margin-right:.5em}
+  .hero h1{font-family:var(--display);font-weight:400;text-transform:uppercase;line-height:.84;margin:.2em 0;font-size:clamp(72px,13vw,220px);letter-spacing:-.01em}
+  .hero h1 .l1{display:block;color:var(--ink)}
+  .hero h1 .l2{display:block;-webkit-text-stroke:3px var(--ink);color:transparent}
+  .hero h1 .l3{display:inline-block;background:var(--pink);color:var(--paper);padding:0 .08em;transform:rotate(-2deg)}
+  .dek{font-family:var(--serif);font-size:clamp(20px,1.8vw,28px);max-width:30em;line-height:1.35}
+  .byline{font-family:var(--mono);font-size:13px;margin-top:1.5em}
+  .hero-right{display:grid;grid-template-rows:1fr 1fr 1fr;border-left:6px solid var(--ink)}
+  .blk{display:flex;align-items:flex-end;justify-content:space-between;padding:1.2vw 1.6vw;border-bottom:6px solid var(--ink);font-family:var(--display);text-transform:uppercase;font-size:clamp(40px,6vw,110px);line-height:.9}
+  .blk:last-child{border-bottom:0}
+  .blk small{font-family:var(--mono);font-size:13px;text-transform:none;max-width:14em;text-align:right;line-height:1.3}
+  .b-go{background:var(--cyan)} .b-react{background:var(--yellow)} .b-aws{background:var(--orange);color:var(--ink)}
+
+  /* sections */
+  section{border-bottom:6px solid var(--ink)}
+  .sec-head{display:grid;grid-template-columns:auto 1fr;align-items:end;gap:2vw;padding:3vw 3vw 1.5vw}
+  .num{font-family:var(--display);font-size:clamp(90px,14vw,240px);line-height:.8;-webkit-text-stroke:3px var(--ink);color:transparent}
+  .sec-head h2{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(44px,6vw,104px);line-height:.88;margin:0}
+  .sec-head h2 em{font-style:normal;background:var(--ink);color:var(--paper);padding:0 .1em}
+  .body{padding:0 3vw 3vw;display:grid;grid-template-columns:minmax(0,40em) minmax(0,1fr);gap:3vw}
+  .body.full{grid-template-columns:1fr;row-gap:0}
+  .prose p{margin:0 0 1em}
+  .prose p:first-child::first-letter{font-family:var(--display);float:left;font-size:4.6em;line-height:.8;padding:.05em .1em 0 0}
+  .s-pink{background:var(--pink)} .s-cyan{background:var(--cyan)} .s-yellow{background:var(--yellow)}
+  .s-ink{background:var(--ink);color:var(--paper)} .s-ink .num{-webkit-text-stroke-color:var(--paper)}
+  .s-ink .sec-head h2 em{background:var(--yellow);color:var(--ink)}
+  .s-green{background:var(--green)} .s-purple{background:var(--purple);color:var(--paper)} .s-purple .num{-webkit-text-stroke-color:var(--paper)}
+  .s-purple .sec-head h2 em{background:var(--paper);color:var(--purple)}
+
+  /* cards */
+  .card{background:var(--paper);color:var(--ink);border:4px solid var(--ink);box-shadow:10px 10px 0 var(--ink);padding:1.3em 1.4em;margin-bottom:1.8em}
+  .card h3{font-family:var(--sans);font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:15px;margin:0 0 .7em;display:inline-block;background:var(--ink);color:var(--paper);padding:.25em .6em}
+  .card ul{margin:0;padding-left:1.1em}
+  .card li{margin-bottom:.45em}
+  .card li b{font-family:var(--sans)}
+  .sticker{display:inline-block;font-family:var(--display);text-transform:uppercase;font-size:24px;background:var(--yellow);color:var(--ink);border:3px solid var(--ink);padding:.15em .5em;transform:rotate(-3deg);box-shadow:4px 4px 0 var(--ink);margin:0 0 1em}
+  .pull{font-family:var(--display);text-transform:uppercase;font-size:clamp(30px,3.4vw,54px);line-height:.95;margin:.4em 0 .8em;border-left:14px solid var(--ink);padding-left:.4em}
+
+  /* table */
+  table.matrix{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:16px;background:var(--paper);border:4px solid var(--ink)}
+  .matrix th{background:var(--ink);color:var(--paper);text-align:left;text-transform:uppercase;font-size:13px;letter-spacing:.08em;padding:.8em}
+  .matrix td{border-top:2px solid var(--ink);padding:.8em;vertical-align:top}
+  .matrix td:first-child{font-weight:700;white-space:nowrap}
+  .bar{height:16px;background:var(--ink);display:block;margin-top:.3em}
+  .bar.p{background:var(--pink)} .bar.c{background:var(--cyan)} .bar.y{background:var(--yellow);outline:2px solid var(--ink)} .bar.o{background:var(--orange)} .bar.g{background:var(--green);outline:2px solid var(--ink)} .bar.v{background:var(--purple)}
+
+  /* plan grid */
+  .days{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:4px solid var(--ink)}
+  .day{padding:1.2em;border-right:4px solid var(--ink);background:var(--paper)}
+  .day:last-child{border-right:0}
+  .day .d{font-family:var(--display);font-size:96px;line-height:.85}
+  .day .t{font-family:var(--sans);font-weight:700;text-transform:uppercase;font-size:16px;margin:.4em 0 .8em;letter-spacing:.04em}
+  .day ul{list-style:none;margin:0;padding:0}
+  .day li{font-size:15px;line-height:1.4;border-top:2px solid currentColor;padding:.6em 0}
+  .day li b{display:block;font-family:var(--mono);font-size:12px;text-transform:uppercase;margin-bottom:.2em}
+  .day:nth-child(1){background:var(--cyan)}
+  .day:nth-child(2){background:var(--yellow)}
+  .day:nth-child(3){background:var(--ink);color:var(--paper)}
+
+  /* code */
+  pre{background:var(--ink);color:#e9e9e9;font-family:var(--mono);font-variant-ligatures:none;font-size:13.5px;line-height:1.5;padding:1.2em 1.4em;overflow:auto;border:4px solid var(--ink);box-shadow:10px 10px 0 var(--pink);margin:0 0 1.8em}
+  pre .k{color:var(--pink)} pre .s{color:var(--green)} pre .c{color:#8a8a8a;font-style:italic} pre .t{color:var(--cyan)}
+  .fname{font-family:var(--mono);font-size:12px;background:var(--pink);color:var(--ink);display:inline-block;padding:.2em .6em;border:4px solid var(--ink);border-bottom:0;font-weight:700}
+
+  /* diagram */
+  .arch{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;font-family:var(--sans);font-weight:700;font-size:14px;text-transform:uppercase;margin-bottom:1.8em}
+  .node{border:4px solid var(--ink);padding:.8em;background:var(--paper);box-shadow:6px 6px 0 var(--ink);position:relative}
+  .node small{display:block;font-family:var(--mono);font-weight:400;text-transform:none;font-size:12px;margin-top:.3em}
+  .node.edge{background:var(--yellow)} .node.fe{background:var(--cyan)} .node.be{background:var(--pink)} .node.data{background:var(--green)} .node.obs{background:var(--purple);color:var(--paper)}
+  .arch .span2{grid-column:span 2} .arch .span5{grid-column:span 5}
+  .arrow{font-family:var(--display);font-size:34px;text-align:center;align-self:center}
+
+  /* Q&A */
+  details{border:4px solid var(--ink);background:var(--paper);color:var(--ink);margin-bottom:14px;box-shadow:6px 6px 0 var(--ink)}
+  summary{cursor:pointer;list-style:none;padding:1em 1.2em;font-family:var(--sans);font-weight:700;font-size:18px;display:grid;grid-template-columns:3.2em 1fr auto;gap:.6em;align-items:center}
+  summary::-webkit-details-marker{display:none}
+  summary .qn{font-family:var(--display);font-size:36px;line-height:1;font-weight:400}
+  summary .area{font-family:var(--mono);font-size:11px;background:var(--ink);color:var(--paper);padding:.2em .5em;text-transform:uppercase}
+  details[open] summary{background:var(--yellow);border-bottom:4px solid var(--ink)}
+  details .ans{padding:1em 1.4em 1.2em}
+  details .ans ol, details .ans ul{margin:.2em 0 0;padding-left:1.2em}
+  details .ans li{margin-bottom:.4em}
+  .levine{font-style:italic;border-top:2px dashed var(--ink);margin-top:1em;padding-top:.8em}
+
+  /* checklist */
+  .check{list-style:none;padding:0;margin:0;font-family:var(--sans);font-size:18px}
+  .check li{border:4px solid var(--paper);margin-bottom:10px}
+  .check label{display:flex;gap:.8em;align-items:center;padding:.8em 1em;cursor:pointer}
+  .check input{width:28px;height:28px;accent-color:var(--green);flex:none}
+  .check input:checked + span{text-decoration:line-through;opacity:.55}
+  .meter{border:4px solid var(--paper);height:46px;position:relative;margin-bottom:1.5em;font-family:var(--display);font-size:28px}
+  .meter i{display:block;height:100%;background:var(--green);width:0;transition:width .3s}
+  .meter b{position:absolute;inset:0;display:flex;align-items:center;padding-left:.5em;font-weight:400;color:var(--paper);mix-blend-mode:difference}
+
+  /* footnotes */
+  .notes{font-family:var(--serif);font-size:16px}
+  .notes ol{padding-left:1.4em}
+  .notes li{margin-bottom:.7em}
+  footer{background:var(--ink);color:var(--paper);padding:2.5em 3vw;font-family:var(--mono);font-size:13px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:1em}
+
+  @media (max-width:900px){
+    .hero,.body{grid-template-columns:minmax(0,1fr)}
+    nav.toc{flex-wrap:nowrap;overflow-x:auto}
+    nav.toc a{white-space:nowrap}
+    .matrix thead{display:none}
+    .matrix,.matrix tbody,.matrix tr,.matrix td{display:block}
+    .matrix tr{border-top:3px solid var(--ink);padding:.5em 0}
+    .matrix tr:first-child{border-top:0}
+    .matrix td,.matrix td:first-child{border-top:0;padding:.15em .8em;white-space:normal}
+    .arch > *{grid-column:auto!important}
+    .hero-right{border-left:0;border-top:6px solid var(--ink)}
+    .days{grid-template-columns:1fr}
+    .day{border-right:0;border-bottom:4px solid var(--ink)}
+    .arch{grid-template-columns:1fr}
+    .arch .span2,.arch .span5{grid-column:auto}
+    .arrow{transform:rotate(90deg)}
+    .sec-head{grid-template-columns:1fr}
+  }
+  @media print{.ticker,nav.toc{display:none}.hero{min-height:auto}}
+  .s-orange{background:var(--orange)}
+  .sub{padding:0 3vw 3vw}
+  .subh{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:clamp(30px,3.2vw,52px);line-height:.92;margin:0 0 .6em;display:flex;flex-wrap:wrap;gap:.4em;align-items:baseline}
+  .subh span{font-family:var(--mono);font-size:13px;background:var(--ink);color:var(--paper);padding:.2em .5em;letter-spacing:0}
+  .vpc{border:4px dashed var(--ink);padding:1em;background:var(--paper);font-family:var(--sans);font-size:14px;box-shadow:10px 10px 0 var(--ink)}
+  .vpc .azs{display:grid;grid-template-columns:1fr 1fr;gap:1em;margin-top:.6em}
+  .az{border:3px solid var(--ink);padding:.6em}
+  .sn{border:3px solid var(--ink);padding:.5em .6em;margin-top:.5em;font-weight:700}
+  .sn small{display:block;font-family:var(--mono);font-weight:400;font-size:12px}
+  .sn.pub{background:var(--yellow)} .sn.app{background:var(--pink)} .sn.db{background:var(--green)}
+  .steps{display:grid;grid-template-columns:repeat(7,1fr);border:4px solid var(--ink);background:var(--paper)}
+  .step{padding:1em;border-right:4px solid var(--ink);font-size:15px;line-height:1.4}
+  .step:last-child{border-right:0;background:var(--yellow)}
+  .step .n{font-family:var(--display);font-size:56px;line-height:.85}
+  .step b{display:block;font-family:var(--sans);text-transform:uppercase;font-size:14px;margin:.3em 0}
+  .step .m{font-family:var(--mono);font-size:12px;background:var(--ink);color:var(--paper);padding:.1em .4em;display:inline-block;margin-bottom:.4em}
+  .flow{font-family:var(--mono);font-size:13px;background:var(--ink);color:var(--green);padding:.8em 1em;margin:.6em 0 1em;line-height:1.6}
+  .note{font-family:var(--sans);font-size:15px}
+  @media (max-width:900px){
+    .vpc .azs{grid-template-columns:1fr}
+    .steps{grid-template-columns:1fr}
+    .step{border-right:0;border-bottom:4px solid var(--ink)}
+  }
+</style>
+</head>
+<body>
+
+<div class="ticker" aria-hidden="true"><div>
+  <span><b>GOROUTINES</b> ▲ acotadas</span><span><b>CONTEXT.CANCEL</b> ▲ obligatorio</span><span class="dn"><b>RETRIES SIN BACKOFF</b> ▼ -100%</span><span><b>P95</b> ▲ subió después del deploy (otra vez)</span><span><b>IAM *:*</b> <span class="dn">▼ despedido</span></span><span><b>TANSTACK QUERY</b> ▲ server state</span><span><b>FACTURA AWS</b> <span class="dn">▲▲ x2 este mes</span></span><span><b>CANARY</b> ▲ 5% del tráfico</span><span><b>SLO</b> ▲ 99.9%</span><span><b>USEEFFECT</b> ▼ probablemente no lo necesitas</span>
+  <span><b>GOROUTINES</b> ▲ acotadas</span><span><b>CONTEXT.CANCEL</b> ▲ obligatorio</span><span class="dn"><b>RETRIES SIN BACKOFF</b> ▼ -100%</span><span><b>P95</b> ▲ subió después del deploy (otra vez)</span><span><b>IAM *:*</b> <span class="dn">▼ despedido</span></span><span><b>TANSTACK QUERY</b> ▲ server state</span><span><b>FACTURA AWS</b> <span class="dn">▲▲ x2 este mes</span></span><span><b>CANARY</b> ▲ 5% del tráfico</span><span><b>SLO</b> ▲ 99.9%</span><span><b>USEEFFECT</b> ▼ probablemente no lo necesitas</span>
+</div></div>
+
+<nav class="toc">
+  <a href="#tesis">La tesis</a><a href="#mapa">Prioridades</a><a href="#plan">Plan de 3 días</a><a href="#aws101">AWS desde cero</a><a href="#arq">Arquitectura</a><a href="#aws">AWS: operar</a><a href="#sd">System design</a><a href="#cicd">CI/CD</a><a href="#ops">Incidentes</a><a href="#go">Go</a><a href="#react">React</a><a href="#preguntas">Las 9 preguntas</a><a href="#historias">Historias</a><a href="#checklist">Checklist</a>
+</nav>
+
+<header class="hero">
+  <div class="hero-left">
+    <div class="kicker"><span class="tag">Entrevista</span> Senior Software Engineer<sup><a href="#n2" id="r2">2</a></sup> · Go + React + AWS</div>
+    <h1><span class="l1">Ser dueña</span><span class="l2">del sistema</span><span class="l3">en prod</span></h1>
+    <div>
+      <p class="dek">Una guía de estudio para una entrevista de Go + React + AWS, en la que nadie te va a preguntar qué es un goroutine y todo el mundo te va a preguntar qué pasa cuando hay diez mil.</p>
+      <p class="byline">Basado en la guía de preparación que le dieron para el puesto<sup><a href="#n1" id="r1">1</a></sup> · Esto no es asesoría de carrera.</p>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="blk b-go">Go<small>concurrencia, APIs, timeouts, tests</small></div>
+    <div class="blk b-react">React<small>composición, estado, routing, performance</small></div>
+    <div class="blk b-aws">AWS<small>IaC, observabilidad, seguridad, costo, DR</small></div>
+  </div>
+</header>
+
+<!-- 00 TESIS -->
+<section id="tesis">
+  <div class="sec-head"><div class="num">00</div><h2>La tesis, <em>o: qué están comprando</em></h2></div>
+  <div class="body">
+    <div class="prose">
+      <p>Hay una forma de leer una descripción de cargo en la que es una lista de tecnologías: Go, React, AWS. Y hay otra forma, más correcta, en la que es un contrato de seguro. La empresa no está contratando a alguien que sepa Go. Está contratando a alguien a quien llamar a las 3 a.m. cuando el p95 se triplicó después del deploy de las 6 p.m., y que para las 3:15 ya sepa si fue la base de datos, el autoscaling o un <code>useEffect</code> que hace fetch en loop.</p>
+      <p>Lo puedes ver en el documento. La palabra “monitoring” (y sus primos “logging”, “observability”, “alerts”) aparece más veces que la palabra “React”. La guía literalmente te advierte que el error más común es “conocer los <em>nombres</em> de AWS pero no demostrar que puedes <em>operar</em>”. Esto es, si lo piensas, una crítica bastante precisa de la mitad de las certificaciones de AWS que existen.</p>
+      <p>Entonces la estrategia de estudio es simple de decir y menos simple de ejecutar: para cada tema, no estudies <em>qué es</em>; estudia <em>qué pasa cuando falla</em>, <em>cómo te enterarías</em> y <em>cuánto cuesta</em>. Si cada respuesta termina con “y lo monitorearía con X, alertaría en Y, y el rollback es Z”, ya ganaste la mitad de la entrevista. La otra mitad es Go.</p>
+    </div>
+    <div>
+      <div class="sticker">La regla de oro</div>
+      <p class="pull">Toda respuesta: opción A, opción B, por qué B, cómo falla B.</p>
+      <div class="card">
+        <h3>Lo que el JD pide “a nivel senior”</h3>
+        <ul>
+          <li><b>Mentorear</b> y organizar al equipo.</li>
+          <li>Dar <b>varias opciones</b> y justificar la elegida.</li>
+          <li>Pensamiento de producción: <b>monitoreo, logs, troubleshooting, secure-by-default</b>.</li>
+          <li>AWS <b>avanzado</b>, mentalidad de <b>automatización</b>.</li>
+          <li>Siempre conectar con <b>performance, costo y seguridad</b>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 01 MAPA -->
+<section id="mapa" class="s-yellow">
+  <div class="sec-head"><div class="num">01</div><h2>Mapa de <em>prioridades</em></h2></div>
+  <div class="body full">
+    <table class="matrix">
+      <thead><tr><th>Área</th><th>Peso</th><th>Qué te van a probar de verdad</th><th>Horas sugeridas</th></tr></thead>
+      <tbody>
+        <tr><td>AWS desde cero</td><td>30%<span class="bar o" style="width:100%"></span></td><td>Región/AZ, red (VPC, subnets, Security Groups), IAM y roles, dónde corre el código, datos. Aquí empieza de cero: sección 03, con lab.</td><td>4.5 h</td></tr>
+        <tr><td>System design</td><td>25%<span class="bar p" style="width:83%"></span></td><td>Framework de 7 pasos, números de servilleta, bloques (caché, colas, idempotencia), arquitectura de 3 minutos y 3 problemas resueltos.</td><td>4.5 h</td></tr>
+        <tr><td>AWS: operar (IaC, monitoreo, CI/CD)</td><td>15%<span class="bar c" style="width:50%"></span></td><td>Terraform/CDK multi-ambiente, SLOs y alarmas, pipeline con canary y rollback, DR.</td><td>2 h</td></tr>
+        <tr><td>Incidentes / ops</td><td>12%<span class="bar y" style="width:40%"></span></td><td>“p95 subió tras deploy”, “errores en una sola AZ”, “la factura se duplicó”. Método, no adivinanza.</td><td>1.5 h</td></tr>
+        <tr><td>React frontend</td><td>8%<span class="bar g" style="width:27%"></span></td><td>Estrategia de estado (server / global / local / URL), composición, re-renders medidos con Profiler.</td><td>1.5 h</td></tr>
+        <tr><td>Go (repaso)</td><td>5%<span class="bar v" style="width:17%"></span></td><td>Ya lo sabe. Escribir a mano las preguntas 1 y 2 y repasar <code>context</code> y <code>errgroup</code>.</td><td>1 h</td></tr>
+        <tr><td>Historias + liderazgo</td><td>5%<span class="bar" style="width:17%"></span></td><td>Dos historias end-to-end (feature e incidente), mentoría, estándares de equipo.</td><td>1.5 h</td></tr>
+      </tbody>
+    </table>
+    <p style="font-family:var(--sans);font-size:14px;margin-top:1em">Los pesos combinan dos cosas: cuánto pesa cada área en la guía de preparación y dónde está tu amiga hoy. Go ya está en el portafolio y rinde; AWS y system design no. Es un modelo. Como todos los modelos, está mal, pero de una forma útil.</p>
+  </div>
+</section>
+
+<!-- 02 PLAN -->
+<section id="plan">
+  <div class="sec-head"><div class="num">02</div><h2>Plan de <em>3 días</em></h2></div>
+  <div class="body full">
+    <p style="font-family:var(--sans);max-width:46em;margin:0 0 1.5em">Tres días, unas 6 horas por día. Como tu amiga ya sabe Go, el plan hace lo que haría cualquier gestor de portafolio razonable: sacar horas de lo que ya rinde y ponerlas donde está el riesgo, que es AWS y system design. Si algo se atrasa, se recortan React y CI/CD, nunca el lab ni el simulacro.</p>
+    <div class="days">
+      <div class="day"><div class="d">1</div><div class="t">AWS desde cero</div><ul>
+        <li><b>Mañana · 2.5 h · Conceptos (sección 03)</b>Pasos 1 a 6 en orden: región/AZ, el diccionario, un request de punta a punta, la red, IAM, dónde corre el código. Sin saltarse nada.</li>
+        <li><b>Tarde · 2 h · El lab con las manos</b>El lab de 90 min del paso 7: React en S3+CloudFront, Go en Fargate, una alarma, y borrar todo. 30 min para volver sobre lo que no quedó claro.</li>
+        <li><b>Noche · 1.5 h · Arquitectura de 3 min (sección 04)</b>Dibujarla de memoria y grabarse explicándola. Cada flecha ya debería tener sentido después del lab.</li>
+      </ul></div>
+      <div class="day"><div class="d">2</div><div class="t">Operar + system design</div><ul>
+        <li><b>Mañana · 2 h · AWS: operar (secciones 05 y 07)</b>La jerga traducida, IaC multi-ambiente (pregunta 7), SLOs y alarmas (pregunta 6), pipeline con canary y rollback.</li>
+        <li><b>Tarde · 2.5 h · System design (sección 06)</b>El framework de 7 pasos y los números; luego el acortador y el de pedidos en voz alta, 35 min cada uno, cronometrados.</li>
+        <li><b>Noche · 1.5 h · Incidentes (sección 08)</b>“p95 subió tras el deploy”, “una AZ falla”, “la factura x2” (preguntas 8 y 9), en voz alta.</li>
+      </ul></div>
+      <div class="day"><div class="d">3</div><div class="t">Repaso + simulacro</div><ul>
+        <li><b>Mañana · 2.5 h · Go y React (secciones 09 y 10)</b>1 h de Go: escribir a mano las preguntas 1 y 2 como calentamiento. 1.5 h de React: estado (pregunta 3) y Profiler (pregunta 4).</li>
+        <li><b>Tarde · 2 h · Historias + un diseño más</b>Las 2 historias con números (sección 12) y el problema de archivos de la sección 06 en 30 min.</li>
+        <li><b>Noche · 1 h · Simulacro + dormir</b>Un system design completo en 45 min y las historias. Después dormir. En serio, que dormir también está en el plan.</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 03 AWS DESDE CERO -->
+<section id="aws101" class="s-orange">
+  <div class="sec-head"><div class="num">03</div><h2>AWS <em>desde cero</em></h2></div>
+  <div class="body">
+    <div class="prose">
+      <p>Aquí está la buena noticia: AWS no es difícil. Es <em>grande</em>, que no es lo mismo. Tiene más de doscientos servicios, de los cuales para esta entrevista necesitas unos quince, y de esos quince la mayoría son cosas que ya conoces (un servidor, un Postgres, un firewall, un <code>.env</code>) con un nombre más caro y una página de precios.</p>
+      <p>La forma más útil de pensar AWS si vienes de programar: es un datacenter que alquilas por API. Todo lo que hay ahí (una máquina, una red, un permiso) es un recurso que se crea con una llamada a una API, tiene un identificador (el ARN), vive en una región y se cobra. La consola web, la CLI, el SDK de Go y Terraform son solo clientes distintos de la misma API. Esa idea sola explica por qué existe la “infraestructura como código”: si todo es una llamada a una API, todo se puede escribir en un archivo y revisar en un PR.</p>
+      <p>Esta sección va en orden, y el orden importa. Si tu amiga lee una sola sección de esta guía, que sea esta, de arriba a abajo, sin saltarse pasos. Para eso está.</p>
+    </div>
+    <div>
+      <div class="sticker">Aquí sí, de la manito</div>
+      <div class="card"><h3>Paso 1 · Cuatro ideas antes que cualquier servicio</h3><ul>
+        <li><b>Región y zona (AZ).</b> Una región es una ciudad (<code>us-east-1</code> = Virginia). Una AZ es un datacenter independiente dentro de esa región (<code>us-east-1a</code>, <code>1b</code>…), con su propia energía y red. Si se cae una AZ, las otras siguen. Regla de oro: todo lo importante en al menos 2 AZ. Eso es lo que significa “Multi-AZ”.</li>
+        <li><b>Todo es una API.</b> Consola, CLI, SDK, Terraform: misma API, distintos clientes.</li>
+        <li><b>Por defecto, nadie puede nada.</b> IAM decide quién puede llamar qué. Si no hay un “Allow” explícito, es “Deny”.</li>
+        <li><b>Todo cobra.</b> Por hora (máquinas), por GB (almacenamiento y, ojo, tráfico de red) y por request. La red es lo que sorprende: salir a internet, pasar por un NAT o cruzar entre AZ cuesta.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3 class="subh">Paso 2 · Lo que ya sabes, con nombre de AWS <span>el diccionario</span></h3>
+    <table class="matrix">
+      <thead><tr><th>Lo que ya conoces</th><th>Cómo se llama en AWS</th><th>Para qué lo vas a mencionar</th></tr></thead>
+      <tbody>
+        <tr><td>Correr un contenedor</td><td>ECS (con Fargate: sin máquinas que administrar)</td><td>Donde vive tu API en Go.</td></tr>
+        <tr><td>Kubernetes</td><td>EKS</td><td>Si la empresa ya tiene plataforma k8s.</td></tr>
+        <tr><td>Una función que corre por evento</td><td>Lambda</td><td>Tareas cortas, eventos de S3/SQS, tráfico irregular.</td></tr>
+        <tr><td>Un servidor / VM</td><td>EC2</td><td>Casi nunca directamente en esta arquitectura; basta saber que existe.</td></tr>
+        <tr><td>Docker Hub privado</td><td>ECR</td><td>Donde subes la imagen de Go.</td></tr>
+        <tr><td>Tu red / LAN</td><td>VPC + subnets</td><td>Las fronteras de seguridad.</td></tr>
+        <tr><td>Firewall</td><td>Security Group</td><td>Quién puede hablar con quién.</td></tr>
+        <tr><td>nginx como balanceador</td><td>ALB (Application Load Balancer)</td><td>Reparte tráfico, health checks, TLS.</td></tr>
+        <tr><td>DNS</td><td>Route 53</td><td>Tu dominio → CloudFront o ALB.</td></tr>
+        <tr><td>CDN (tipo Cloudflare)</td><td>CloudFront (+ WAF)</td><td>Sirve el React, cachea, filtra ataques.</td></tr>
+        <tr><td>Un disco para archivos</td><td>S3</td><td>Build de React, uploads, backups. Ojo: no es un disco, es almacenamiento de objetos por HTTP.</td></tr>
+        <tr><td>Postgres administrado</td><td>RDS / Aurora</td><td>Backups, Multi-AZ y réplicas sin que tú operes la base.</td></tr>
+        <tr><td>Redis</td><td>ElastiCache</td><td>Caché, sesiones, rate limiting.</td></tr>
+        <tr><td>Una cola (RabbitMQ)</td><td>SQS</td><td>Trabajo asíncrono, absorber picos.</td></tr>
+        <tr><td>Pub/sub</td><td>SNS / EventBridge</td><td>Un evento, muchos consumidores.</td></tr>
+        <tr><td>El <code>.env</code> con contraseñas</td><td>Secrets Manager / SSM Parameter Store</td><td>Secretos fuera del código y de la imagen.</td></tr>
+        <tr><td>Usuarios y permisos</td><td>IAM</td><td>Quién puede llamar qué API. Lo van a preguntar.</td></tr>
+        <tr><td>Prometheus + Grafana + logs</td><td>CloudWatch (métricas, logs, alarmas, dashboards)</td><td>Monitoreo. Lo van a preguntar sí o sí.</td></tr>
+        <tr><td>Jaeger / tracing</td><td>X-Ray (o OpenTelemetry)</td><td>Seguir un request por todos los servicios.</td></tr>
+        <tr><td>Terraform</td><td>CloudFormation / CDK (Terraform también vale)</td><td>Infraestructura en git.</td></tr>
+        <tr><td>Log de auditoría</td><td>CloudTrail</td><td>Quién cambió qué y cuándo.</td></tr>
+        <tr><td>Llaves de cifrado</td><td>KMS</td><td>Cifrado en reposo.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="body">
+    <div>
+      <h3 class="subh">Paso 3 · Un request de punta a punta <span>memorízalo</span></h3>
+      <div class="card"><h3>El usuario abre app.com y ve sus pedidos</h3><ol>
+        <li><b>Route 53</b> (DNS) responde: “app.com es esta distribución de CloudFront”.</li>
+        <li><b>CloudFront</b> (CDN con puntos en todo el mundo) recibe la petición; <b>WAF</b> filtra bots y ataques.</li>
+        <li>Si pide <code>/</code> o <code>/assets/*</code>, CloudFront devuelve el build de React desde su caché o desde <b>S3</b>. El bucket es privado: solo CloudFront puede leerlo (OAC).</li>
+        <li>El React ya cargado llama a <code>/api/orders</code>, y CloudFront lo manda al <b>ALB</b>.</li>
+        <li>El ALB (en subnets públicas) elige una tarea de Go sana, según su health check.</li>
+        <li>Tu <b>Go en Fargate</b> (subnet privada, sin IP pública) atiende. Sus credenciales de AWS vienen del task role; la contraseña de la base, de Secrets Manager.</li>
+        <li>Go consulta <b>RDS</b> (subnet privada de datos; su Security Group solo acepta a la app).</li>
+        <li>Si Go llama a una API externa (pagos), sale por el <b>NAT Gateway</b>. Si habla con S3 o ECR, mejor por un <b>VPC endpoint</b>.</li>
+        <li>Todo deja rastro: logs y métricas en <b>CloudWatch</b>, trazas en <b>X-Ray</b>, cambios de infraestructura en <b>CloudTrail</b>.</li>
+      </ol></div>
+      <p class="note">Si puede contar estos 9 pasos sin mirar, ya pasó de “noob” a “conversación razonable”. El resto de la guía es agregarle detalle a estos pasos.</p>
+    </div>
+    <div>
+      <h3 class="subh">Paso 4 · La red (VPC) <span>dibújala</span></h3>
+      <div class="vpc"><b>VPC 10.0.0.0/16 · us-east-1</b> · conectada a internet por un Internet Gateway
+        <div class="azs">
+          <div class="az"><b>AZ a</b>
+            <div class="sn pub">Pública 10.0.1.0/24<small>ALB · NAT Gateway</small></div>
+            <div class="sn app">Privada app 10.0.11.0/24<small>tareas Go (Fargate)</small></div>
+            <div class="sn db">Privada datos 10.0.21.0/24<small>RDS principal</small></div>
+          </div>
+          <div class="az"><b>AZ b</b>
+            <div class="sn pub">Pública 10.0.2.0/24<small>ALB · NAT Gateway</small></div>
+            <div class="sn app">Privada app 10.0.12.0/24<small>tareas Go (Fargate)</small></div>
+            <div class="sn db">Privada datos 10.0.22.0/24<small>RDS standby (Multi-AZ)</small></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:2em"><h3>Lo que hay que entender de la red</h3><ul>
+        <li><b>VPC</b> = tu red privada dentro de AWS, con un rango de IPs (<code>10.0.0.0/16</code>).</li>
+        <li><b>Subnet pública</b> = la que tiene una ruta al Internet Gateway. Eso es todo: no es una propiedad mágica, es una línea en la tabla de rutas.</li>
+        <li><b>Subnet privada</b> = no se llega a ella desde internet. Para <em>salir</em> (llamar a una API de pagos) usa un NAT Gateway, que vive en la pública.</li>
+        <li><b>Security Group</b> = firewall pegado a cada recurso; solo reglas de “permitir”; con estado (si entra la petición, sale la respuesta). La cadena clásica: el ALB acepta 443 desde internet → la app acepta 8080 <em>solo desde el SG del ALB</em> → la base acepta 5432 <em>solo desde el SG de la app</em>.</li>
+        <li><b>NACL</b> = firewall a nivel de subnet, sin estado. Casi nunca se toca; basta con saber la diferencia.</li>
+        <li><b>VPC endpoint</b> = atajo privado a S3, ECR o Secrets Manager sin pasar por el NAT. Más seguro y más barato.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div>
+      <h3 class="subh">Paso 5 · IAM, que es donde se reprueba <span>importante</span></h3>
+      <div class="prose"><p>IAM es el sistema de permisos de AWS, y es aburrido justo hasta el momento en que es lo único que importa. Una cantidad deprimente de filtraciones de datos en la nube no fueron hackers geniales: fueron un bucket público o una llave con demasiados permisos. El entrevistador lo sabe. Así que la respuesta a casi cualquier pregunta de seguridad empieza igual: “un rol por servicio, solo con los permisos que necesita, credenciales temporales y ninguna llave en el código”.</p></div>
+      <div class="card"><h3>Las piezas</h3><ul>
+        <li><b>Usuario:</b> una persona o programa con credenciales permanentes. Hoy casi no se crean usuarios IAM; las personas entran con IAM Identity Center (SSO).</li>
+        <li><b>Rol:</b> un “sombrero” que un servicio o una persona se pone y que da credenciales <em>temporales</em> que rotan solas. Tu contenedor Go usa un rol, nunca access keys.</li>
+        <li><b>Policy:</b> un JSON con <code>Effect</code> (Allow/Deny), <code>Action</code> (qué API) y <code>Resource</code> (sobre qué ARN). Un Deny explícito siempre gana.</li>
+        <li><b>Trust policy:</b> quién puede ponerse el sombrero (por ejemplo, “solo el servicio ECS”).</li>
+        <li><b>La trampa de ECS:</b> hay dos roles. El <em>task execution role</em> es para que ECS baje tu imagen de ECR y mande logs a CloudWatch. El <em>task role</em> es para tu código Go (leer el secreto, escribir en S3). Confundirlos es un clásico de entrevista.</li>
+      </ul></div>
+    </div>
+    <div>
+      <span class="fname">task-role-policy.json — mínimo privilegio</span>
+<pre>{
+  <span class="t">"Version"</span>: <span class="s">"2012-10-17"</span>,
+  <span class="t">"Statement"</span>: [
+    {
+      <span class="t">"Effect"</span>: <span class="s">"Allow"</span>,
+      <span class="t">"Action"</span>: <span class="s">"secretsmanager:GetSecretValue"</span>,
+      <span class="t">"Resource"</span>: <span class="s">"arn:aws:secretsmanager:us-east-1:123456789012:secret:prod/orders/db-*"</span>
+    },
+    {
+      <span class="t">"Effect"</span>: <span class="s">"Allow"</span>,
+      <span class="t">"Action"</span>: [<span class="s">"s3:GetObject"</span>, <span class="s">"s3:PutObject"</span>],
+      <span class="t">"Resource"</span>: <span class="s">"arn:aws:s3:::orders-uploads-prod/*"</span>
+    }
+  ]
+}
+<span class="c">// Un solo secreto y un solo bucket. Nada de "Action": "*".</span></pre>
+      <span class="fname">main.go — Go hablando con AWS</span>
+<pre>cfg, err := config.LoadDefaultConfig(ctx) <span class="c">// en Fargate toma el task role: cero access keys</span>
+<span class="k">if</span> err != <span class="k">nil</span> {
+    <span class="k">return</span> err
+}
+sm := secretsmanager.NewFromConfig(cfg)
+out, err := sm.GetSecretValue(ctx, &amp;secretsmanager.GetSecretValueInput{
+    SecretId: aws.String(<span class="s">"prod/orders/db"</span>),
+})</pre>
+      <p class="note">El SDK busca credenciales en una cadena (variables de entorno, archivo local, rol de la tarea). En Fargate las toma solo del task role. Por eso la respuesta a “¿dónde guardas las credenciales de AWS?” es “en ningún lado”.</p>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3 class="subh">Paso 6 · ¿Dónde corre el código? <span>la pregunta que siempre llega</span></h3>
+    <table class="matrix">
+      <thead><tr><th>Opción</th><th>Qué es</th><th>Úsalo cuando</th><th>Cuidado con</th></tr></thead>
+      <tbody>
+        <tr><td>ECS Fargate</td><td>Contenedores sin administrar máquinas</td><td>API Go siempre encendida; equipo sin plataforma k8s. El default de esta entrevista.</td><td>Pagas por tarea encendida; configura autoscaling (CPU o requests por target).</td></tr>
+        <tr><td>EKS</td><td>Kubernetes administrado</td><td>La empresa ya tiene k8s, muchos servicios, equipo de plataforma.</td><td>Complejidad: upgrades, nodos, add-ons; costo del control plane.</td></tr>
+        <tr><td>Lambda</td><td>Función por evento; pagas por milisegundo</td><td>Tráfico irregular, eventos de S3/SQS, tareas cortas.</td><td>Máx. 15 min, cold starts (bajos en Go), muchas conexiones a RDS → RDS Proxy.</td></tr>
+        <tr><td>EC2</td><td>Máquinas virtuales</td><td>Control total, GPU, software especial.</td><td>Tú operas todo: parches, imágenes, escalado.</td></tr>
+        <tr><td>S3 + CloudFront</td><td>Archivos estáticos</td><td>El build de React (SPA).</td><td>Si es Next.js con SSR, necesitas cómputo (contenedor o Amplify).</td></tr>
+      </tbody>
+    </table>
+    <p class="pull" style="margin-top:1em">Sin contexto: “Arranco con ECS Fargate; si ya tienen EKS, uso EKS”.</p>
+  </div>
+
+  <div class="body">
+    <div>
+      <h3 class="subh">Paso 7 · Lab de 90 minutos <span>con las manos</span></h3>
+      <div class="prose"><p>Leer sobre AWS sirve hasta cierto punto, como leer sobre natación. Noventa minutos con la consola abierta convierten “sé qué es un Security Group” en “una vez un Security Group no me dejaba conectar y entendí por qué”, que es exactamente el tipo de frase que suena senior en una entrevista.</p></div>
+      <div class="card"><h3>El lab</h3><ol>
+        <li><b>Cuenta y seguridad (10 min).</b> MFA en el usuario root y no volver a usarlo; un acceso de admin con IAM Identity Center; un AWS Budget de USD 10 con alerta por email. Esto también responde a “¿qué haces primero en una cuenta nueva?”.</li>
+        <li><b>React en S3 + CloudFront (20 min).</b> Bucket privado, subir el build de cualquier app, distribución de CloudFront con OAC. Comprobar que la URL directa del bucket da <em>Access Denied</em> y la de CloudFront funciona. Eso es “privado por defecto”.</li>
+        <li><b>Go en ECS Fargate (40 min).</b> Imagen con el Dockerfile de al lado, push a ECR, y en la consola de ECS: cluster, task definition y service con un ALB, health check en <code>/healthz</code>. Para el lab, tareas en subnet pública con IP pública (así no pagas NAT); en producción irían en privadas, y eso se dice en la entrevista.</li>
+        <li><b>CloudWatch (10 min).</b> Ver los logs de la tarea; crear una alarma sobre los 5xx del ALB. Romper <code>/healthz</code> a propósito y ver qué hace el target group.</li>
+        <li><b>Borrar todo (10 min).</b> Service, cluster, ALB, target group, distribución, bucket, repositorio de ECR. Al día siguiente, mirar Billing. El budget de USD 10 es la red de seguridad.</li>
+      </ol></div>
+    </div>
+    <div>
+      <span class="fname">Dockerfile — Go para Fargate</span>
+<pre><span class="c"># Etapa 1: compilar</span>
+<span class="k">FROM</span> golang:1.25 <span class="k">AS</span> build
+<span class="k">WORKDIR</span> /src
+<span class="k">COPY</span> go.mod go.sum ./
+<span class="k">RUN</span> go mod download
+<span class="k">COPY</span> . .
+<span class="k">RUN</span> CGO_ENABLED=0 go build -o /app ./cmd/api
+
+<span class="c"># Etapa 2: imagen mínima, sin shell, usuario no-root</span>
+<span class="k">FROM</span> gcr.io/distroless/static-debian12
+<span class="k">COPY</span> --from=build /app /app
+<span class="k">USER</span> nonroot
+<span class="k">EXPOSE</span> 8080
+<span class="k">ENTRYPOINT</span> [<span class="s">"/app"</span>]
+
+<span class="c"># En Mac con chip M: docker build --platform linux/amd64 .
+# o configura la tarea en ARM64 (Graviton, más barato).</span></pre>
+      <h3 class="subh">Paso 8 · Trampas y frases <span>para la entrevista</span></h3>
+      <div class="card"><h3>Trampas de novata</h3><ul>
+        <li>Usar la cuenta root, o poner access keys en el código, en el <code>.env</code> o en la imagen. → Roles.</li>
+        <li>Poner RDS en subnet pública “para conectarme desde mi laptop”. → SSM Session Manager o un bastion.</li>
+        <li>Confundir Security Group (por recurso, con estado) y NACL (por subnet, sin estado).</li>
+        <li>Tratar S3 como un disco. No se “monta”: se hace PUT y GET por HTTP.</li>
+        <li>Todo en una AZ “porque es más barato”. Lo es, hasta el día en que no.</li>
+        <li>Olvidar que la red cobra: NAT Gateway, tráfico entre AZ, salida a internet.</li>
+        <li>Mezclar task role y task execution role.</li>
+        <li>Compilar en un Mac con chip M y desplegar en Fargate x86: <code>exec format error</code>.</li>
+      </ul></div>
+      <div class="card"><h3>Frases que puede usar tal cual</h3><ul>
+        <li>“Privado por defecto: solo CloudFront y el ALB son públicos.”</li>
+        <li>“Un rol IAM por servicio, mínimo privilegio, credenciales temporales; ninguna access key de larga duración.”</li>
+        <li>“Todo en al menos dos AZ; la base en Multi-AZ con backups y point-in-time recovery.”</li>
+        <li>“La infraestructura vive en Terraform o CDK y se despliega desde el pipeline, no desde la consola.”</li>
+        <li>“Antes de elegir dónde corre, pregunto: tráfico esperado, qué usa ya el equipo y presupuesto.”</li>
+        <li>“Alarmo sobre el SLO (errores y latencia), no sobre la CPU.”</li>
+        <li>“Budget y Cost Anomaly Detection desde el día uno.”</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 ARQUITECTURA -->
+<section id="arq" class="s-cyan">
+  <div class="sec-head"><div class="num">04</div><h2>La arquitectura <em>de 3 minutos</em></h2></div>
+  <div class="body full">
+    <div class="arch">
+      <div class="node edge">Route 53 + WAF<small>DNS, reglas de rate-limit y OWASP</small></div>
+      <div class="arrow">→</div>
+      <div class="node edge">CloudFront<small>CDN, TLS, caché de assets con hash</small></div>
+      <div class="arrow">→</div>
+      <div class="node fe">S3 (privado, OAC)<small>build estático de React (SPA)</small></div>
+
+      <div class="node edge span2" style="grid-column:3">/api/* → ALB<small>health checks, subnets públicas</small></div>
+      <div class="arrow" style="grid-column:4">→</div>
+      <div class="node be">ECS Fargate (Go)<small>subnets privadas, autoscaling por CPU/RPS, task role IAM</small></div>
+
+      <div class="node data" style="grid-column:3">RDS Postgres Multi-AZ<small>backups automáticos + PITR</small></div>
+      <div class="node data" style="grid-column:4">ElastiCache / SQS<small>caché, trabajo asíncrono</small></div>
+      <div class="node data" style="grid-column:5">Secrets Manager / SSM<small>sin secretos en env de la imagen</small></div>
+
+      <div class="node obs span5">Observabilidad transversal: CloudWatch Logs (JSON estructurado + request_id) · Métricas + Alarmas (latencia p95/p99, 5xx, saturación) · X-Ray / OpenTelemetry (traces UI → API → DB) · AWS Budgets + Cost Anomaly Detection</div>
+    </div>
+    <div class="body" style="padding:0">
+      <div class="card">
+        <h3>Los trade-offs que debes poder defender</h3>
+        <ul>
+          <li><b>ECS Fargate vs EKS vs Lambda.</b> Fargate: menos operación, ideal para un servicio Go. EKS: cuando ya hay plataforma Kubernetes y muchos servicios; más poder, más cosas que mantener. Lambda: tráfico muy irregular; cuidado con cold starts (Go los tiene bajos), límites de duración y conexiones a RDS (RDS Proxy).</li>
+          <li><b>S3+CloudFront vs contenedor para el frontend.</b> SPA estática → S3+CloudFront (barato, rápido, cero servidores). Next.js con SSR → contenedor o Amplify. La guía de preparación misma pregunta “¿SPA o Next.js?”, así que ten las dos.</li>
+          <li><b>Mismo dominio para UI y API</b> (CloudFront con behavior <code>/api/*</code> → ALB): evitas CORS y simplificas cookies.</li>
+          <li><b>Privado por defecto:</b> solo ALB y CloudFront son públicos; Go y la base viven en subnets privadas; Security Groups referencian otros SGs, no rangos de IP.</li>
+        </ul>
+      </div>
+      <div class="prose">
+        <p>El truco con esta pregunta es que el entrevistador no está evaluando si conoces los nombres de las cajas. Está evaluando si, cuando dibujas una caja, automáticamente dibujas también cómo se cae y cómo te enteras. Una flecha de ALB a Fargate es arquitectura. Una flecha de ALB a Fargate con “health check en <code>/healthz</code>, deregistration delay de 30s y alarma si los hosts sanos bajan de 2” es seniority.</p>
+        <p>Además: menciona el costo sin que te lo pregunten. Los NAT Gateways cobran por GB procesado, y una sorprendente cantidad de facturas de AWS duplicadas son, en el fondo, alguien descargando imágenes de Docker a través de un NAT.<sup><a href="#n4" id="r4">4</a></sup> VPC endpoints para S3 y ECR. Dilo y mira cómo el entrevistador asiente.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 AWS OPERAR -->
+<section id="aws" class="s-ink">
+  <div class="sec-head"><div class="num">05</div><h2>AWS: <em>operar, no recitar</em></h2></div>
+  <div class="body">
+    <div class="prose">
+      <p>Existe un tipo de candidata que, ante “¿cómo desplegarías esto en AWS?”, responde con una lista de quince servicios, en orden alfabético más o menos. Esto no es una arquitectura; es un catálogo. El entrevistador está buscando, según la guía de preparación, a alguien con “mentalidad de automatización”, que sabe “configurar agregación de logs y usarla para debugear” y que puede “probar, ejecutar y mantener procedimientos de DR”.</p>
+      <p>Fíjate en ese último verbo: <em>probar</em>. Todo el mundo tiene backups. Mucha menos gente ha restaurado uno un martes cualquiera para ver si funciona. Un backup que nunca restauraste es menos un backup y más una opinión sobre el estado de tus datos.</p>
+      <p>Sobre IAM: la respuesta a casi cualquier pregunta de seguridad empieza por “un rol por servicio, con solo los permisos que necesita”. Si en algún momento de la entrevista dices <code>"Action": "*"</code> en voz alta, que sea para explicar por qué es malo.</p>
+    </div>
+    <div>
+      <div class="card">
+        <h3>La jerga, traducida</h3>
+        <ul>
+          <li><b>IaC (infraestructura como código):</b> la infraestructura descrita en archivos dentro de git. Cambiar algo = abrir un PR.</li>
+          <li><b>Terraform state:</b> el archivo donde Terraform recuerda qué creó. Vive en S3, con bloqueo para que dos personas no apliquen a la vez.</li>
+          <li><b>plan / apply:</b> <code>plan</code> es el diff (“voy a crear 3 cosas y borrar 1”); <code>apply</code> lo ejecuta. El plan se revisa en el PR.</li>
+          <li><b>Drift:</b> cuando la realidad ya no coincide con el código porque alguien cambió algo a mano en la consola.</li>
+          <li><b>SLI / SLO:</b> SLI es lo que mides (% de requests OK); SLO es la meta (99.9% en 30 días).</li>
+          <li><b>Error budget y burn rate:</b> 99.9% deja 0.1% para fallar (unos 43 min al mes). Burn rate es qué tan rápido te lo estás gastando. Alertar por burn rate = solo despertar a alguien si de verdad vas a incumplir.</li>
+          <li><b>RPO / RTO:</b> RPO = cuántos datos puedes perder; RTO = cuánto tiempo puedes estar caída.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>IaC (pregunta 7)</h3>
+        <ul>
+          <li><b>Herramienta:</b> Terraform o CDK/CloudFormation; ten una favorita y sabe por qué.</li>
+          <li><b>Estructura:</b> módulos reutilizables (network, service, database) + un root por ambiente (dev/stage/prod) con variables distintas; mismo código, distinta configuración.</li>
+          <li><b>Estado:</b> backend remoto (S3 + bloqueo), un state por ambiente.</li>
+          <li><b>Revisión:</b> <code>plan</code> como comentario en el PR, <code>tflint</code>/<code>checkov</code>, aprobación manual para prod, apply desde CI (nunca desde un laptop).</li>
+          <li><b>Drift:</b> detección programada; nada de cambios en consola.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Observabilidad + DR (pregunta 6)</h3>
+        <ul>
+          <li><b>Señales doradas:</b> latencia (p50/p95/p99), tráfico, errores (5xx), saturación (CPU, conexiones a DB).</li>
+          <li><b>SLOs:</b> ej. 99.9% de requests exitosas y p95 &lt; 300 ms en 30 días; alertar por <em>burn rate</em> del error budget, no por cada pico.</li>
+          <li><b>Logs:</b> JSON estructurado, <code>request_id</code>/trace id propagado, CloudWatch Logs Insights.</li>
+          <li><b>Alertas accionables</b> con runbook enlazado. Si una alerta no tiene acción, es ruido.</li>
+          <li><b>DR:</b> RPO (cuántos datos puedes perder) y RTO (cuánto puedes estar caída); restore probado periódicamente.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 SYSTEM DESIGN -->
+<section id="sd" class="s-pink">
+  <div class="sec-head"><div class="num">06</div><h2>System design, <em>o 45 minutos de cajas</em></h2></div>
+  <div class="body">
+    <div class="prose">
+      <p>Una entrevista de system design es un ejercicio raro. Te dan un problema deliberadamente vago (“diseña un sistema de pedidos”), 45 minutos y una pizarra, y el entrevistador ya sabe que no existe la respuesta correcta. Lo que evalúa es el proceso: si preguntas antes de dibujar, si haces cuentas, si nombras los trade-offs y si al final te acuerdas de que el sistema se va a caer. En ese sentido se parece menos a un examen y más a un comité de crédito: nadie espera que predigas el futuro, pero sí que hayas pensado en cómo se pierde la plata.</p>
+      <p>Tu amiga tiene buen instinto. La guía de preparación no dice “system design” con esas palabras, pero pide “contribuir al diseño y despliegue de soluciones”, escenarios de escalado, y la pregunta 5 es, literalmente, un diseño. En una entrevista senior lo raro sería que no hubiera una pizarra.</p>
+      <p>La ventaja: sabe Go, que es el lenguaje en el que se escriben los servicios de estas pizarras. La desventaja: las cajas tienen nombres de AWS. Por eso esta sección va después de “AWS desde cero”.</p>
+    </div>
+    <div>
+      <div class="sticker">El proceso vale más que la respuesta</div>
+      <div class="card"><h3>Qué evalúan de verdad</h3><ul>
+        <li><b>Que preguntes</b> antes de dibujar.</li>
+        <li><b>Que hagas números</b>, aunque sean aproximados.</li>
+        <li><b>Que nombres trade-offs:</b> “elijo X; pierdo Y; lo acepto porque Z”.</li>
+        <li><b>Que lideres:</b> tú manejas el tiempo y propones dónde profundizar.</li>
+        <li><b>Que te acuerdes de que se cae:</b> fallos, monitoreo, seguridad, costo.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3 class="subh">El framework de 7 pasos <span>45 minutos</span></h3>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><b>Requisitos</b><span class="m">5 min</span><br>Funcionales: qué hace. No funcionales: usuarios, latencia, disponibilidad, consistencia, presupuesto. Pregunta y anota.</div>
+      <div class="step"><div class="n">2</div><b>Números</b><span class="m">5 min</span><br>Requests/s promedio y pico, datos por día y por año, proporción lectura/escritura.</div>
+      <div class="step"><div class="n">3</div><b>API</b><span class="m">5 min</span><br>3 a 5 endpoints principales. Paginación, idempotencia, errores.</div>
+      <div class="step"><div class="n">4</div><b>Datos</b><span class="m">5 min</span><br>Entidades y patrones de acceso. SQL por defecto; NoSQL con una razón.</div>
+      <div class="step"><div class="n">5</div><b>Alto nivel</b><span class="m">10 min</span><br>Cajas y flechas del camino feliz. Simple primero.</div>
+      <div class="step"><div class="n">6</div><b>Profundizar</b><span class="m">10 min</span><br>1 o 2 cuellos de botella: caché, colas, réplicas, particiones. Tú propones cuáles.</div>
+      <div class="step"><div class="n">7</div><b>Operar</b><span class="m">5 min</span><br>Fallos, monitoreo, seguridad, costo, despliegue. Aquí se ganan los puntos extra.</div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div>
+      <h3 class="subh">Números de servilleta <span>back-of-envelope</span></h3>
+      <div class="prose"><p>No tienen que ser exactos. El punto de hacer la cuenta es saber si estás diseñando para 10 requests por segundo o para 10.000, porque son dos sistemas distintos, y una parte considerable de los sistemas sobredimensionados de la historia vienen de no haber hecho esta división.<sup><a href="#n7" id="r7">7</a></sup></p></div>
+      <table class="matrix">
+        <thead><tr><th>Dato</th><th>Valor aproximado</th></tr></thead>
+        <tbody>
+          <tr><td>Segundos en un día</td><td>≈ 86.400 ≈ 10⁵</td></tr>
+          <tr><td>1 millón de requests/día</td><td>≈ 12 req/s promedio</td></tr>
+          <tr><td>100 millones/día</td><td>≈ 1.200 req/s promedio</td></tr>
+          <tr><td>Pico vs promedio</td><td>2–3× normal; 10× o más en eventos (Black Friday)</td></tr>
+          <tr><td>Leer de memoria</td><td>~100 ns</td></tr>
+          <tr><td>Ida y vuelta dentro de una AZ</td><td>&lt; 1 ms</td></tr>
+          <tr><td>Ida y vuelta entre AZ</td><td>~1–2 ms</td></tr>
+          <tr><td>Query con índice en Postgres</td><td>~1 ms + red</td></tr>
+          <tr><td>Entre continentes</td><td>~100–150 ms</td></tr>
+          <tr><td>1 millón de filas de 1 KB</td><td>≈ 1 GB</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Órdenes de magnitud para razonar en voz alta, no especificaciones.</p>
+    </div>
+    <div>
+      <h3 class="subh">Los bloques <span>y lo que cuestan</span></h3>
+      <div class="card"><h3>Cada bloque resuelve algo y cobra algo</h3><ul>
+        <li><b>Caché</b> → ElastiCache (Redis/Valkey); CloudFront para lo público. Cuesta: datos viejos e invalidación. Patrón: cache-aside con TTL.</li>
+        <li><b>Cola</b> → SQS + DLQ. Absorbe picos y desacopla. Cuesta: todo se vuelve asíncrono, y SQS estándar puede entregar un mensaje más de una vez → consumidores idempotentes.</li>
+        <li><b>Pub/sub</b> → SNS → varias SQS (fan-out), o EventBridge. Un evento, muchos interesados.</li>
+        <li><b>SQL vs NoSQL</b> → RDS/Aurora (transacciones, joins, flexible) vs DynamoDB (escala horizontal y latencia predecible, pero hay que conocer las consultas de antemano). Default: Postgres hasta tener una razón.</li>
+        <li><b>Réplicas de lectura</b> → escalan lecturas. Cuesta: replication lag (“acabo de guardar y no lo veo”).</li>
+        <li><b>Particionar (sharding)</b> → escala escrituras. Cuesta: hot keys y consultas entre particiones.</li>
+        <li><b>Rate limiting</b> → WAF, API Gateway o token bucket en Redis. Protege del abuso y de tus propios clientes.</li>
+        <li><b>Idempotencia</b> → header <code>Idempotency-Key</code> + restricción única en la base. Permite reintentar sin cobrar dos veces.</li>
+        <li><b>Outbox</b> → guardar el pedido y el evento en la misma transacción; otro proceso publica a SNS/SQS. Evita “se guardó pero nunca se notificó”.</li>
+        <li><b>Archivos grandes</b> → S3 presigned URLs: el navegador sube directo a S3, no a través de tu API.</li>
+        <li><b>Tiempo real</b> → polling (simple), SSE o WebSockets. Empieza por polling y justifica subir.</li>
+      </ul></div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <h3 class="subh">Tres problemas resueltos <span>practícalos en voz alta</span></h3>
+
+    <details><summary><span class="qn">A</span>Diseña un acortador de URLs (calentamiento).<span class="area">35 min</span></summary><div class="ans"><ul>
+      <li><b>Requisitos:</b> crear un link corto y redirigir. 1M links nuevos/día, 100M redirecciones/día. Redirección en &lt; 50 ms. Se lee 100 veces más de lo que se escribe.</li>
+      <li><b>Números:</b> ~1.200 redirecciones/s promedio, ~4.000 en pico; 1M × ~500 B ≈ 500 MB/día ≈ 180 GB/año.</li>
+      <li><b>API:</b> <code>POST /links {url} → {code}</code>; <code>GET /{code}</code> → 301/302.</li>
+      <li><b>Datos:</b> <code>code → url</code>. Es clave-valor puro: DynamoDB encaja perfecto (o Postgres + caché).</li>
+      <li><b>Alto nivel:</b><div class="flow">CloudFront → ALB → Go (Fargate) → ElastiCache → DynamoDB</div>Código: contador + base62, o aleatorio con verificación de colisión.</li>
+      <li><b>Profundizar:</b> caché de los links populares (incluso en CloudFront; 301 se cachea, 302 permite contar clicks). Analytics de clicks asíncrono por SQS para no frenar la redirección.</li>
+      <li><b>Operar:</b> rate limit en la creación (spam), escaneo de URLs maliciosas, alarma sobre p99 de redirección. El costo lo dominan las lecturas → la caché paga sola.</li>
+    </ul></div></details>
+
+    <details><summary><span class="qn">B</span>Sistema de pedidos que aguante el Black Friday.<span class="area">35 min</span></summary><div class="ans"><ul>
+      <li><b>Requisitos:</b> crear pedido, cobrar, descontar inventario, notificar. Picos de 10×. Nunca cobrar dos veces. Nunca perder un pedido.</li>
+      <li><b>Alto nivel:</b><div class="flow">React → ALB → Go orders API → RDS (orders + outbox, misma transacción)<br>outbox → SNS → SQS pagos · SQS inventario · SQS emails → workers Go</div></li>
+      <li><b>Idempotencia:</b> <code>Idempotency-Key</code> en <code>POST /orders</code> (doble clic, reintentos de red). El pago al proveedor externo usa la misma llave: timeout + retry sin doble cobro.</li>
+      <li><b>Picos:</b> SQS absorbe; los workers escalan por profundidad de cola. RDS: pool de conexiones y RDS Proxy; escalar antes del evento, no durante.</li>
+      <li><b>Fallos:</b> DLQ para mensajes que fallan N veces; runbook para reprocesarlos. ¿Qué pasa si el worker muere a mitad? El mensaje reaparece → el worker tiene que ser idempotente.</li>
+      <li><b>UI:</b> consistencia eventual → estado “procesando” y polling (o WebSocket) hasta “confirmado”.</li>
+      <li><b>Operar:</b> alarmas sobre la edad del mensaje más viejo en cada cola, DLQ &gt; 0, tasa de pagos fallidos, p95 de <code>POST /orders</code>.</li>
+    </ul></div></details>
+
+    <details><summary><span class="qn">C</span>Subida y procesamiento de archivos (facturas, imágenes).<span class="area">30 min</span></summary><div class="ans"><ul>
+      <li><b>Requisitos:</b> archivos de hasta 100 MB; se procesan (miniatura, OCR); la UI muestra el progreso.</li>
+      <li><b>Alto nivel:</b><div class="flow">React pide a Go una presigned URL → sube directo a S3<br>S3 event → SQS → workers Go (Fargate o Lambda) → resultado en S3 + estado en RDS → UI</div></li>
+      <li><b>Por qué así:</b> la API no carga 100 MB por request (memoria, timeouts, costo); S3 escala solo.</li>
+      <li><b>Profundizar:</b> validar tipo y tamaño en la presigned URL, escaneo de malware, worker idempotente (el mismo evento puede llegar dos veces), Lambda si el proceso dura poco y Fargate si puede pasar de 15 min.</li>
+      <li><b>Operar:</b> bucket privado y cifrado, lifecycle a clases más baratas, alarmas de cola, costo de almacenamiento.</li>
+    </ul></div></details>
+  </div>
+
+  <div class="body">
+    <div class="card"><h3>Errores típicos</h3><ul>
+      <li>Dibujar antes de preguntar.</li>
+      <li>No hacer ni un número.</li>
+      <li>Microservicios, Kubernetes y Kafka para 500 usuarios.<sup><a href="#n6" id="r6">6</a></sup></li>
+      <li>Una caja gigante llamada “backend”, sin decir qué pasa si se cae.</li>
+      <li>Olvidar la consistencia: ¿qué ve el usuario mientras el pedido se procesa?</li>
+      <li>No decir nada de costo ni de seguridad.</li>
+      <li>Quedarse callada pensando. En system design se piensa en voz alta.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Una nota sobre los microservicios. Un monolito modular, bien desplegado en Fargate en dos AZ, es una respuesta perfectamente válida para casi cualquier problema de entrevista. Decirlo con su trade-off (“un solo deploy y una sola base; cuando un módulo necesite escalar distinto, lo separo”) suena más senior que dibujar doce servicios. Los entrevistadores han visto muchos sistemas de doce servicios. Algunos hasta los mantienen.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 07 CICD -->
+<section id="cicd" class="s-green">
+  <div class="sec-head"><div class="num">07</div><h2>CI/CD: <em>el rollback es la feature</em></h2></div>
+  <div class="body">
+    <div class="prose">
+      <p>Un pipeline es una máquina de convertir commits en incidentes, con un poco de suerte en ese orden y no al revés. El trabajo de las quality gates es atrapar el incidente antes de que llegue a producción, y el trabajo de la estrategia de despliegue es que, si llega igual, afecte al 5% de los usuarios durante 4 minutos en vez de al 100% durante una hora.</p>
+      <p>La pregunta de entrevista suele ser “describe tu pipeline”. La respuesta senior no es una lista de pasos; es una lista de pasos <em>más</em> qué pasa cuando cada uno falla, y quién decide hacer rollback (pista: idealmente, una alarma de CloudWatch, no una persona).</p>
+    </div>
+    <div>
+      <div class="card">
+        <h3>El pipeline que debes poder dibujar</h3>
+        <ul>
+          <li><b>PR:</b> lint (golangci-lint, ESLint), tests unitarios, <code>go test -race</code>, typecheck, build.</li>
+          <li><b>Seguridad:</b> SAST, escaneo de dependencias (govulncheck, npm audit), escaneo de imagen (ECR/Trivy), secret scanning.</li>
+          <li><b>Artefacto:</b> imagen Docker inmutable con tag = SHA; mismo artefacto promovido dev → stage → prod.</li>
+          <li><b>Deploy:</b> IaC aplicado, luego servicio; config y secretos por ambiente (SSM/Secrets Manager), nunca en la imagen.</li>
+          <li><b>Verificación:</b> smoke tests post-deploy, e2e de flujos críticos en stage.</li>
+          <li><b>Estrategia:</b> <b>rolling</b> (simple, mezcla versiones), <b>blue/green</b> (cambio instantáneo, doble costo temporal), <b>canary</b> (5% → 25% → 100% con alarmas; mejor señal, más complejo). ECS + CodeDeploy hace blue/green y canary.</li>
+          <li><b>Rollback:</b> automático si las alarmas de 5xx/latencia disparan; migraciones de DB compatibles hacia atrás (expand/contract) para que el rollback sea posible.</li>
+          <li><b>Frontend:</b> subir assets con hash, después <code>index.html</code>, invalidar solo <code>index.html</code> en CloudFront.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 OPS -->
+<section id="ops" class="s-yellow">
+  <div class="sec-head"><div class="num">08</div><h2>Incidentes: <em>método, no adivinanza</em></h2></div>
+  <div class="body">
+    <div class="prose">
+      <p>La guía pide practicar exactamente un escenario: “el p95 subió después de un deploy”. Esto es un regalo, porque la respuesta correcta empieza con algo que casi nadie dice primero: <em>haz rollback</em>. Si subió justo después de un deploy, el sospechoso principal es el deploy, y la forma más rápida de mitigar es deshacerlo. La investigación forense puede ocurrir después, con el sistema sano y el café caliente.</p>
+      <p>A los entrevistadores les encanta esto porque separa a quien quiere <em>entender</em> el problema de quien quiere <em>resolverlo para los usuarios</em>. Ambas cosas importan. Pero en ese orden: mitigar, luego entender.</p>
+      <div class="pull">Mitigar → acotar → diagnosticar → arreglar → postmortem sin culpables.</div>
+    </div>
+    <div>
+      <div class="card">
+        <h3>“p95 subió tras el deploy”</h3>
+        <ul>
+          <li><b>Mitigar:</b> ¿correlaciona con el deploy? Rollback o bajar el canary a 0%.</li>
+          <li><b>Acotar:</b> ¿todos los endpoints o uno? ¿todas las AZ? ¿todos los clientes?</li>
+          <li><b>UI:</b> ¿el frontend nuevo hace más requests (un efecto en loop, se perdió el caché)?</li>
+          <li><b>API:</b> traces en X-Ray: ¿el tiempo está en Go, en la DB o en un servicio externo? pprof si es CPU.</li>
+          <li><b>DB:</b> Performance Insights, slow query log, ¿una query nueva sin índice? ¿pool de conexiones agotado?</li>
+          <li><b>Escala:</b> ¿CPU/memoria de las tasks al límite? ¿autoscaling reaccionó? ¿throttling?</li>
+          <li><b>Cerrar:</b> fix + test de regresión + alarma que lo habría detectado antes + postmortem.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Errores en una sola AZ (pregunta 8)</h3>
+        <ul>
+          <li>Señal típica de infraestructura, no de código (el código es el mismo en todas).</li>
+          <li>Revisar AWS Health Dashboard, targets sanos por AZ en el ALB, subnet/NAT de esa AZ, nodo de DB.</li>
+          <li>Mitigar: sacar la AZ del balanceo (zonal shift en ALB/ARC), escalar en las otras.</li>
+          <li>Lección: capacidad para perder una AZ (N+1) y alarmas por AZ.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>La factura se duplicó (pregunta 9)</h3>
+        <ul>
+          <li>Cost Explorer agrupado por servicio → por tag (equipo/ambiente) → por usage type.</li>
+          <li>Sospechosos habituales: NAT Gateway (transferencia), logs de CloudWatch en DEBUG, ambientes de prueba olvidados, snapshots viejos, autoscaling que sube y no baja.</li>
+          <li>Prevenir: tags obligatorios en IaC, AWS Budgets + Cost Anomaly Detection, lifecycle en S3/logs, Savings Plans para la base estable.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 GO -->
+<section id="go">
+  <div class="sec-head"><div class="num">09</div><h2>Go, <em>o el arte de cancelar cosas</em></h2></div>
+  <div class="body">
+    <div>
+      <div class="prose">
+        <p>Tu amiga sabe Go, así que esta sección es un repaso de una hora, no un curso. Si puede escribir los dos ejemplos de al lado sin mirar y explicar cada línea, puede pasar al resto de la guía con la conciencia tranquila. Si duda en alguno de los puntos de la lista, ahí, y solo ahí, vale la pena profundizar. Lo que sí conviene recordar es que la pregunta de entrevista nunca es “¿sabes lanzar goroutines?”. Es “¿sabes <em>no</em> lanzar diez mil, y sabes matarlas cuando el cliente ya se fue?”.</p>
+        <p>La guía lo dice casi en tono de amenaza: “cuando hables de AWS + Go, siempre menciona <em>timeouts, retries y backpressure</em>”. Y en la lista de errores comunes: “goroutines sin límite, falta de cancelación con context/timeouts”. Así que esa es la tesis entera de esta sección. Todo lo demás es detalle.</p>
+      </div>
+      <div class="card">
+        <h3>Repaso: si dudas en alguno, ahí sí estudia</h3>
+        <ul>
+          <li><b>context:</b> propagación desde el request, <code>WithTimeout</code>, <code>WithCancel</code>, siempre <code>defer cancel()</code>, respetar <code>ctx.Done()</code> en loops y selects.</li>
+          <li><b>Concurrencia acotada:</b> <code>errgroup.SetLimit</code>, semáforo con canal con buffer, worker pool. Cuándo cada uno.</li>
+          <li><b>Fallo parcial:</b> ¿cancelo todo al primer error (errgroup) o recojo resultados parciales y degrado (respuesta con campos faltantes)?</li>
+          <li><b>Fugas:</b> goroutine bloqueada enviando a un canal que nadie lee. Cómo detectarlo: <code>pprof</code> goroutine profile, <code>goleak</code> en tests.</li>
+          <li><b>Race/deadlock:</b> <code>go test -race</code>, <code>sync.Mutex</code> vs canales, “no compartas memoria comunicando…” y cuándo un mutex es simplemente más claro.</li>
+          <li><b>Errores:</b> <code>fmt.Errorf("...: %w", err)</code>, <code>errors.Is/As</code>, errores sentinela vs tipados, mapear a un modelo HTTP único.</li>
+          <li><b>API:</b> paginación por cursor (no offset en tablas grandes), idempotency keys en POST, timeouts del <code>http.Server</code>, graceful shutdown.</li>
+          <li><b>Resiliencia saliente:</b> timeouts en <code>http.Client</code>, retries con backoff exponencial + jitter, solo en operaciones idempotentes; circuit breaker.</li>
+          <li><b>Testing:</b> table-driven, <code>httptest</code>, interfaces pequeñas para fakes, integración con testcontainers, cómo evitar tests flaky (nada de <code>time.Sleep</code>).</li>
+          <li><b>Diagnóstico:</b> <code>net/http/pprof</code>, CPU/heap profiles, trazas, logs estructurados con <code>log/slog</code>.</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <span class="fname">fanout.go — pregunta 2 de la guía</span>
+<pre><span class="c">// Concurrencia acotada + cancelación + timeout global.</span>
+<span class="k">func</span> <span class="t">FetchAll</span>(ctx context.Context, ids []<span class="t">string</span>) ([]Result, <span class="t">error</span>) {
+    ctx, cancel := context.WithTimeout(ctx, <span class="s">2</span>*time.Second)
+    <span class="k">defer</span> cancel()
+
+    g, ctx := errgroup.WithContext(ctx) <span class="c">// primer error cancela al resto</span>
+    g.SetLimit(<span class="s">8</span>)                       <span class="c">// backpressure: máx. 8 en vuelo</span>
+
+    out := make([]Result, len(ids))      <span class="c">// cada goroutine escribe su índice: sin mutex</span>
+    <span class="k">for</span> i, id := <span class="k">range</span> ids {
+        g.Go(<span class="k">func</span>() <span class="t">error</span> {
+            r, err := client.Get(ctx, id)
+            <span class="k">if</span> err != <span class="k">nil</span> {
+                <span class="k">return</span> fmt.Errorf(<span class="s">"get %s: %w"</span>, id, err)
+            }
+            out[i] = r
+            <span class="k">return</span> <span class="k">nil</span>
+        })
+    }
+    <span class="k">return</span> out, g.Wait()
+}
+<span class="c">// Fallo parcial: si prefieres degradar en vez de abortar,
+// usa errgroup.Group sin WithContext, guarda err por item
+// y devuelve lo que sí llegó + lista de fallos.</span></pre>
+
+      <span class="fname">orders.go — pregunta 1 de la guía</span>
+<pre><span class="k">type</span> <span class="t">APIError</span> <span class="k">struct</span> {
+    Code      <span class="t">string</span> <span class="s">`json:"code"`</span>
+    Message   <span class="t">string</span> <span class="s">`json:"message"`</span>
+    RequestID <span class="t">string</span> <span class="s">`json:"request_id"`</span>
+}
+
+<span class="k">func</span> (h *Handler) <span class="t">ListOrders</span>(w http.ResponseWriter, r *http.Request) {
+    ctx, cancel := context.WithTimeout(r.Context(), <span class="s">800</span>*time.Millisecond)
+    <span class="k">defer</span> cancel()
+
+    limit := clamp(atoiOr(r.URL.Query().Get(<span class="s">"limit"</span>), <span class="s">20</span>), <span class="s">1</span>, <span class="s">100</span>)
+    cursor := r.URL.Query().Get(<span class="s">"cursor"</span>) <span class="c">// opaco: base64(último id)</span>
+
+    items, next, err := h.store.ListOrders(ctx, cursor, limit)
+    <span class="k">switch</span> {
+    <span class="k">case</span> errors.Is(err, context.DeadlineExceeded):
+        writeErr(w, r, http.StatusGatewayTimeout, <span class="s">"timeout"</span>, <span class="s">"upstream too slow"</span>)
+        <span class="k">return</span>
+    <span class="k">case</span> errors.Is(err, ErrBadCursor):
+        writeErr(w, r, http.StatusBadRequest, <span class="s">"bad_cursor"</span>, <span class="s">"invalid cursor"</span>)
+        <span class="k">return</span>
+    <span class="k">case</span> err != <span class="k">nil</span>:
+        writeErr(w, r, http.StatusInternalServerError, <span class="s">"internal"</span>, <span class="s">"unexpected error"</span>)
+        <span class="k">return</span>
+    }
+    writeJSON(w, http.StatusOK, map[<span class="t">string</span>]any{<span class="s">"items"</span>: items, <span class="s">"next_cursor"</span>: next})
+}
+
+<span class="c">// Y el servidor, que también tiene timeouts:</span>
+srv := &amp;http.Server{
+    Addr: <span class="s">":8080"</span>, Handler: mux,
+    ReadHeaderTimeout: <span class="s">5</span> * time.Second,
+    WriteTimeout:      <span class="s">10</span> * time.Second,
+    IdleTimeout:       <span class="s">60</span> * time.Second,
+}</pre>
+      <p style="font-family:var(--sans);font-size:15px">Lo que hay que <b>decir en voz alta</b> mientras lo escribes: el límite de <code>limit</code> protege la base; el cursor evita el <code>OFFSET</code> lento; el modelo de error es el mismo en todos los endpoints; el <code>request_id</code> conecta el error que ve el usuario con el log en CloudWatch; el timeout del handler es menor que el del ALB (60s por defecto) para que falle tu código y no el balanceador.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 10 REACT -->
+<section id="react" class="s-pink">
+  <div class="sec-head"><div class="num">10</div><h2>React, <em>o dónde vive el estado</em></h2></div>
+  <div class="body">
+    <div>
+      <div class="prose">
+        <p>La guía tiene una frase en “errores comunes” que es casi un ensayo: “estrategia de estado poco clara; arreglos de performance aplicados a ciegas sin medir”. Es decir: lo que separa a una senior de React de una mid no es saber qué hace <code>useMemo</code>. Es saber que casi nunca es la respuesta, y poder demostrarlo con un flame graph.</p>
+        <p>La respuesta moderna a “¿cómo estructuras el estado?” tiene cuatro cajones, y la mayoría de las apps que sufren es porque metieron todo en el cajón equivocado (normalmente: datos del servidor en Redux, sincronizados con un <code>useEffect</code>, con un spinner que nunca se va del todo).</p>
+      </div>
+      <div class="card">
+        <h3>Qué estudiar</h3>
+        <ul>
+          <li><b>Los 4 tipos de estado:</b> server state (TanStack Query / RTK Query: caché, invalidación, reintentos, stale-while-revalidate), URL state (filtros, paginación, tabs — compartible y con back button), global de cliente (sesión, tema: Context o Zustand), local (<code>useState</code>, lo más cerca posible de donde se usa).</li>
+          <li><b>Composición:</b> compound components (<code>&lt;Tabs&gt;&lt;Tabs.List&gt;…</code>), render props, HOCs (y por qué los custom hooks los reemplazaron casi siempre), children como slot.</li>
+          <li><b>Design systems:</b> componentes de librería accesibles, tokens, cómo extender sin forkear.</li>
+          <li><b>Re-renders:</b> por qué re-renderiza un componente (padre re-renderiza, context cambia, props nuevas por identidad). React DevTools Profiler primero; después <code>memo</code>, mover estado hacia abajo, separar contexts, virtualizar listas largas.</li>
+          <li><b>“You might not need an effect”:</b> derivar en render en vez de sincronizar estado; efectos solo para sistemas externos.</li>
+          <li><b>Bundle:</b> <code>React.lazy</code> + <code>Suspense</code> por ruta, análisis de bundle, caché inmutable con hash en CloudFront.</li>
+          <li><b>Routing:</b> rutas anidadas, loaders, rutas protegidas, code splitting por ruta (React Router / TanStack Router / Next.js App Router).</li>
+          <li><b>Testing:</b> Testing Library (probar comportamiento, no implementación), MSW para mockear la API, Playwright/Cypress para e2e de flujos críticos.</li>
+          <li><b>Seguridad:</b> React escapa por defecto; el riesgo es <code>dangerouslySetInnerHTML</code>, URLs <code>javascript:</code>, tokens en <code>localStorage</code> (vs cookies httpOnly), CSP.</li>
+          <li><b>i18n:</b> que exista la conversación (react-intl / i18next, formatos de fecha y moneda).</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <span class="fname">OrdersPage.tsx — pregunta 3 de la guía</span>
+<pre><span class="k">function</span> <span class="t">OrdersPage</span>() {
+  <span class="c">// URL state: filtros compartibles, sobreviven al refresh</span>
+  <span class="k">const</span> [params, setParams] = useSearchParams();
+  <span class="k">const</span> status = params.get(<span class="s">"status"</span>) ?? <span class="s">"all"</span>;
+
+  <span class="c">// Server state: caché, dedupe, reintentos, paginación por cursor</span>
+  <span class="k">const</span> q = useInfiniteQuery({
+    queryKey: [<span class="s">"orders"</span>, status],
+    queryFn: ({ pageParam, signal }) =&gt;
+      api.listOrders({ status, cursor: pageParam, signal }), <span class="c">// abort al desmontar</span>
+    initialPageParam: <span class="k">undefined</span>,
+    getNextPageParam: (last) =&gt; last.next_cursor ?? <span class="k">undefined</span>,
+    staleTime: <span class="s">30_000</span>,
+  });
+
+  <span class="c">// Local state: solo le importa a este componente</span>
+  <span class="k">const</span> [selected, setSelected] = useState&lt;<span class="t">string</span> | <span class="k">null</span>&gt;(<span class="k">null</span>);
+
+  <span class="k">if</span> (q.isError) <span class="k">return</span> &lt;<span class="t">ErrorState</span> requestId={q.error.requestId} /&gt;;
+  <span class="k">return</span> (
+    &lt;<span class="t">VirtualList</span> items={q.data?.pages.flatMap(p =&gt; p.items) ?? []}
+                 onEndReached={() =&gt; q.fetchNextPage()}
+                 onSelect={setSelected} /&gt;
+  );
+}</pre>
+      <div class="card">
+        <h3>Pregunta 4: “arregla este re-render”</h3>
+        <ul>
+          <li><b>1. Medir:</b> Profiler de React DevTools, “highlight updates”, qué componente y cuántas veces.</li>
+          <li><b>2. Encontrar la causa:</b> ¿un Context gigante que cambia en cada tecla? ¿objetos/funciones nuevos como props? ¿estado demasiado arriba?</li>
+          <li><b>3. Arreglo estructural primero:</b> bajar el estado, partir el context, pasar children.</li>
+          <li><b>4. Memo después:</b> <code>memo</code> + <code>useCallback</code> solo donde el Profiler dijo.</li>
+          <li><b>5. Volver a medir</b> y decir el número antes/después.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 PREGUNTAS -->
+<section id="preguntas" class="s-purple">
+  <div class="sec-head"><div class="num">11</div><h2>Las 9 preguntas <em>de la propia guía</em></h2></div>
+  <div class="body full">
+    <p style="font-family:var(--sans);max-width:46em">La guía de preparación trae las preguntas de muestra. Es como si el examen viniera con el examen adjunto. Esto pasa más de lo que uno pensaría y se aprovecha menos de lo que uno pensaría. Esqueletos de respuesta abajo; practica cada una en voz alta en ≤ 4 minutos.</p>
+
+    <details><summary><span class="qn">01</span>Endpoint en Go con paginación y timeouts; modelo de error consistente.<span class="area">Go</span></summary><div class="ans"><ol>
+      <li>Aclara requisitos: ¿volumen?, ¿orden estable?, ¿consistencia mientras se pagina?</li>
+      <li>Cursor opaco (último id/timestamp) &gt; offset; <code>limit</code> con tope.</li>
+      <li><code>context.WithTimeout</code> derivado de <code>r.Context()</code>; timeouts en <code>http.Server</code>.</li>
+      <li>Un solo tipo de error JSON (<code>code</code>, <code>message</code>, <code>request_id</code>); mapear errores de dominio a status.</li>
+      <li>Tests table-driven con <code>httptest</code>: límites, cursor inválido, timeout.</li></ol>
+      <p class="levine">Ver el código en la sección 09. Escribirlo una vez a mano antes de la entrevista vale más que leerlo diez.</p></div></details>
+
+    <details><summary><span class="qn">02</span>Concurrencia acotada a varios downstream, con cancelación y fallo parcial.<span class="area">Go</span></summary><div class="ans"><ol>
+      <li><code>errgroup.WithContext</code> + <code>SetLimit(n)</code>; o semáforo con canal.</li>
+      <li>Timeout global y por llamada; respetar <code>ctx.Done()</code>.</li>
+      <li>Decidir: ¿un fallo aborta todo, o devuelvo parcial y marco lo que faltó? Depende del producto: dilo.</li>
+      <li>Retries con backoff + jitter solo si la llamada es idempotente; circuit breaker si el downstream está caído.</li>
+      <li>Probar con <code>-race</code> y con fakes que fallan/tardan.</li></ol></div></details>
+
+    <details><summary><span class="qn">03</span>Estado en una UI con muchos datos: server cache vs global vs local.<span class="area">React</span></summary><div class="ans"><ul>
+      <li>Server state en TanStack Query (caché, invalidación tras mutaciones, optimistic updates).</li>
+      <li>Filtros/paginación en la URL. Sesión/tema en un store global pequeño. Todo lo demás local.</li>
+      <li>Trade-off: un store global para todo es fácil al inicio y produce re-renders y datos viejos después.</li></ul></div></details>
+
+    <details><summary><span class="qn">04</span>Explica y arregla un problema de re-render. ¿Qué mides primero?<span class="area">React</span></summary><div class="ans"><p>Profiler primero. Luego estructura (bajar estado, partir context), luego memoización. Volver a medir y dar el número. La respuesta a “¿qué mides primero?” es literalmente <em>medir</em>; la pregunta está diseñada para atrapar a quien responde “<code>useMemo</code>”.</p></div></details>
+
+    <details><summary><span class="qn">05</span>Arquitectura AWS para React + Go. ¿Cómo la aseguras y observas?<span class="area">AWS</span></summary><div class="ans"><p>La de la sección 04, en 3 minutos: CloudFront+S3 para la SPA, ALB → ECS Fargate en subnets privadas, RDS Multi-AZ, Secrets Manager, WAF, roles IAM por servicio, CloudWatch + X-Ray, alarmas sobre SLOs. Cierra con una frase de costo y una de DR. Si la conversación se abre a escala, usa el framework de la sección 06.</p></div></details>
+
+    <details><summary><span class="qn">06</span>Monitoreo y alertas para disponibilidad y latencia. ¿Señales SLO clave?<span class="area">AWS</span></summary><div class="ans"><p>Availability SLI = requests no-5xx / total; latency SLI = % de requests &lt; umbral. Alertas por burn rate (rápida: 2% del budget en 1 h; lenta: 5% en 6 h). Dashboards por servicio y por AZ. Synthetic canaries (CloudWatch Synthetics) para el flujo crítico.</p></div></details>
+
+    <details><summary><span class="qn">07</span>IaC multi-ambiente. ¿Cómo pruebas y revisas cambios?<span class="area">AWS</span></summary><div class="ans"><p>Módulos + root por ambiente, state remoto con bloqueo, <code>plan</code> en el PR, linters de políticas, promoción dev → stage → prod, aprobación manual en prod, detección de drift. Ten lista una historia real: “automaticé X, lo estructuré así, el problema fue Y”.</p></div></details>
+
+    <details><summary><span class="qn">08</span>Errores solo en una AZ/región: investigación y mitigación.<span class="area">Ops</span></summary><div class="ans"><p>Mismo código en todas partes ⇒ sospecha infraestructura. Health Dashboard, targets por AZ, red de esa AZ. Mitigar con zonal shift; después, revisar que la capacidad aguante perder una AZ.</p></div></details>
+
+    <details><summary><span class="qn">09</span>El gasto se duplicó este mes: encontrar causas y evitar que se repita.<span class="area">Costo</span></summary><div class="ans"><p>Cost Explorer por servicio → tag → usage type; comparar con el mes anterior; buscar NAT, logs, recursos huérfanos, escalado. Prevenir con tags obligatorios, Budgets, Anomaly Detection y revisiones mensuales.</p>
+      <p class="levine">La factura de AWS es el único dashboard de la empresa que mira el CFO, así que es razonable que también lo mire la ingeniera.</p></div></details>
+  </div>
+</section>
+
+<!-- 12 HISTORIAS -->
+<section id="historias">
+  <div class="sec-head"><div class="num">12</div><h2>Dos historias, <em>de punta a punta</em></h2></div>
+  <div class="body">
+    <div class="prose">
+      <p>La guía pide preparar dos historias “end-to-end”: una de entrega de una feature y una de un incidente o problema de performance, ambas cubriendo UI → API → AWS. Esto es más importante de lo que parece, porque en una entrevista senior las historias son la evidencia y todo lo demás es teoría.</p>
+      <p>Una buena historia de entrevista tiene una propiedad incómoda: incluye algo que salió mal. Las historias donde todo salió perfecto suenan, para un entrevistador con experiencia, exactamente como suenan las proyecciones financieras donde todo sale perfecto.<sup><a href="#n3" id="r3">3</a></sup></p>
+    </div>
+    <div>
+      <div class="card">
+        <h3>Plantilla (4 minutos máximo)</h3>
+        <ul>
+          <li><b>Contexto</b> (20 s): producto, equipo, tu rol.</li>
+          <li><b>Problema</b> (30 s): con un número. “p95 de 1.8 s”, “deploys de 2 h”.</li>
+          <li><b>Opciones</b> (60 s): al menos dos, con trade-offs. Esto es lo que pide la guía.</li>
+          <li><b>Lo que hiciste</b> (60 s): UI, API, AWS. Primera persona, no “hicimos”.</li>
+          <li><b>Resultado</b> (30 s): otro número. Costo, latencia, frecuencia de deploy.</li>
+          <li><b>Qué cambiarías / cómo lo enseñaste</b> (30 s): monitoreo que agregaste, estándar que propusiste, a quién mentoreaste.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Checklist de cada historia</h3>
+        <ul>
+          <li>☐ Toca frontend, backend y AWS.</li>
+          <li>☐ Tiene una decisión de costo, una de performance y una de seguridad.</li>
+          <li>☐ Menciona cómo lo monitoreaste.</li>
+          <li>☐ Algo salió mal y lo cuentas.</li>
+          <li>☐ Alguien más aprendió algo gracias a ti.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 13 ERRORES -->
+<section class="s-pink">
+  <div class="sec-head"><div class="num">13</div><h2>Cosas que hacen que <em>anoten algo</em></h2></div>
+  <div class="body">
+    <div class="card">
+      <h3>Directamente de la guía de preparación</h3>
+      <ul>
+        <li><b>AWS:</b> no mencionar control de costos, mínimo privilegio ni monitoreo/alertas.</li>
+        <li><b>Go:</b> goroutines sin límite; falta de cancelación con context y timeouts.</li>
+        <li><b>React:</b> estrategia de estado confusa; optimizar sin medir.</li>
+        <li><b>End-to-end:</b> no tener plan para modos de falla (dependencias caídas, caídas parciales, retries).</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Y uno que no está en la lista pero que la guía insinúa en todos lados: <b>no liderar la conversación</b>. El documento dice que debes sentirte cómoda “liderando la discusión, aclarando requisitos y proponiendo un enfoque práctico”. En la práctica significa que la primera frase ante una pregunta de diseño no es la respuesta; es una pregunta. “¿Cuántos usuarios? ¿SPA o Next.js? ¿Ya tienen EKS o empezamos de cero?”. La guía misma termina preguntando exactamente eso: si el runtime es EKS, ECS o Lambda, y si el front es Next.js o SPA. Si ellos mismos no lo saben, pregúntalo tú.</p>
+      <p>Un retry sin backoff, por cierto, es un ataque de denegación de servicio que te haces a ti misma, pero con buenos modales.<sup><a href="#n5" id="r5">5</a></sup></p>
+    </div>
+  </div>
+</section>
+
+<!-- 14 CHECKLIST -->
+<section id="checklist" class="s-ink">
+  <div class="sec-head"><div class="num">14</div><h2>Checklist <em>final</em></h2></div>
+  <div class="body">
+    <div>
+      <div class="meter"><i id="bar"></i><b id="pct">0% LISTA</b></div>
+      <ul class="check" id="check">
+        <li><label><input type="checkbox"><span>Explico la arquitectura AWS de Go + React en 3 minutos, con trade-offs.</span></label></li>
+        <li><label><input type="checkbox"><span>Explico región vs AZ y por qué todo va en al menos dos AZ.</span></label></li>
+        <li><label><input type="checkbox"><span>Cuento los 9 pasos de un request (Route 53 → … → RDS) sin mirar.</span></label></li>
+        <li><label><input type="checkbox"><span>Sé qué hace pública a una subnet y cómo se encadenan los Security Groups.</span></label></li>
+        <li><label><input type="checkbox"><span>Distingo usuario, rol y policy de IAM, y task role vs task execution role.</span></label></li>
+        <li><label><input type="checkbox"><span>Elijo entre Fargate, EKS y Lambda con un trade-off para cada uno.</span></label></li>
+        <li><label><input type="checkbox"><span>Hice el lab: React en S3+CloudFront y Go en Fargate (y lo borré).</span></label></li>
+        <li><label><input type="checkbox"><span>Resuelvo un system design con los 7 pasos en 45 min, con números.</span></label></li>
+        <li><label><input type="checkbox"><span>Sé cuándo usar caché, cola, réplica, outbox e idempotency key, y qué cuesta cada uno.</span></label></li>
+        <li><label><input type="checkbox"><span>Escribí a mano el fan-out con errgroup y el endpoint con cursor (calentamiento Go).</span></label></li>
+        <li><label><input type="checkbox"><span>Tengo clara mi estrategia de estado en React (server / URL / global / local).</span></label></li>
+        <li><label><input type="checkbox"><span>Sé usar el React Profiler y lo usaría antes de cualquier memo.</span></label></li>
+        <li><label><input type="checkbox"><span>Puedo describir IaC multi-ambiente y cómo reviso un plan.</span></label></li>
+        <li><label><input type="checkbox"><span>Defino SLOs y alertas por burn rate sin trabarme.</span></label></li>
+        <li><label><input type="checkbox"><span>Describo un pipeline con quality gates, canary y rollback automático.</span></label></li>
+        <li><label><input type="checkbox"><span>Practiqué en voz alta “p95 subió tras deploy”, “una AZ falla” y “factura x2”.</span></label></li>
+        <li><label><input type="checkbox"><span>Tengo mis 2 historias end-to-end con números.</span></label></li>
+        <li><label><input type="checkbox"><span>Tengo ejemplos concretos de decisiones de costo, performance y seguridad.</span></label></li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>El consejo final de la guía de preparación es, en el fondo, el mismo de toda esta página: “no describas solo la implementación; describe cómo despliegas, observas, aseguras, diagnosticas y mejoras el sistema en AWS con el tiempo”.</p>
+      <p>Que es una forma muy corporativa de decir: el código es la parte fácil. La parte difícil, y la que pagan, es todo lo que pasa después del merge.</p>
+      <p>Mucha suerte. No es que la necesites. Pero es gratis, y tiene muy buena relación costo-beneficio, que es algo que en esta entrevista te conviene mencionar.</p>
+      <div class="card" style="margin-top:2em">
+        <h3>Para leer (fuentes primarias)</h3>
+        <ul style="font-family:var(--sans);font-size:16px">
+          <li><a href="https://go.dev/blog/context">Go blog: Context</a> · <a href="https://go.dev/blog/pipelines">Pipelines and cancellation</a></li>
+          <li><a href="https://pkg.go.dev/golang.org/x/sync/errgroup">errgroup (SetLimit)</a> · <a href="https://go.dev/doc/articles/race_detector">Race detector</a></li>
+          <li><a href="https://react.dev/learn/you-might-not-need-an-effect">You Might Not Need an Effect</a> · <a href="https://react.dev/reference/react/Profiler">Profiler</a></li>
+          <li><a href="https://tanstack.com/query/latest/docs/framework/react/overview">TanStack Query</a></li>
+          <li><a href="https://docs.aws.amazon.com/wellarchitected/latest/framework/welcome.html">AWS Well-Architected Framework</a></li>
+          <li><a href="https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/">Builders’ Library: timeouts, retries y backoff con jitter</a></li>
+          <li><a href="https://sre.google/workbook/alerting-on-slos/">SRE Workbook: alertar sobre SLOs</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NOTAS -->
+<section class="notes">
+  <div class="sec-head"><div class="num">*</div><h2>Notas <em>al pie</em></h2></div>
+  <div class="body full">
+    <ol>
+      <li id="n1">La guía original dice que fue preparada con IA. Es decir: una IA preparó una guía para que una humana se prepare para hablar con otro humano que probablemente usó una IA para escribir las preguntas. Y esta página que estás leyendo resume esa guía. Es IA hasta el fondo. Lo cual está bien; lo importante es que la persona del medio sepa Go. <a href="#r1">↩</a></li>
+      <li id="n2">En tecnología, “senior” no es una cantidad de años. Es, más o menos, la cantidad de veces que fuiste la persona a la que llamaron cuando algo se rompió, ponderada por qué tan rápido dejó de estar roto. Es un título que se gana con incidentes, como las cicatrices. <a href="#r2">↩</a></li>
+      <li id="n3">Esto no es una crítica a las proyecciones financieras. Bueno, un poco sí. <a href="#r3">↩</a></li>
+      <li id="n4">Esto es una generalización, no una estadística. Pero pregúntale a cualquiera que haya revisado un Cost Explorer con la línea “NatGateway-Bytes” arriba de todo. <a href="#r4">↩</a></li>
+      <li id="n5">El término técnico es “retry storm” y la cura técnica es backoff exponencial con jitter, presupuestos de reintentos y reintentar solo operaciones idempotentes. El término no técnico es “por qué se cayó todo a las 3 a.m.”. <a href="#r5">↩</a></li>
+      <li id="n6">Los microservicios son, en parte, una tecnología para convertir problemas de código en problemas de red. Los problemas de red son más caros y se ven más importantes en las reuniones, lo cual explica parte de su popularidad. <a href="#r6">↩</a></li>
+      <li id="n7">Los números de servilleta funcionan como un modelo de flujo de caja descontado: nadie cree el resultado exacto, pero todos quieren ver que sabes de dónde sale cada supuesto. Equivocarse por un factor de 2 no importa. Equivocarse por un factor de 1.000 cambia el diseño entero, y ese es el punto de hacer la cuenta. <a href="#r7">↩</a></li>
+    </ol>
+  </div>
+</section>
+
+<footer>
+  <span>GO + REACT + AWS / GUÍA DE ESTUDIO / SENIOR</span>
+  <span>Esto no es asesoría de carrera.</span>
+</footer>
+
+<script>
+  const KEY = "guide-checklist-v2";
+  const boxes = [...document.querySelectorAll("#check input")];
+  const saved = JSON.parse(localStorage.getItem(KEY) || "[]");
+  boxes.forEach((b, i) => { b.checked = !!saved[i]; b.addEventListener("change", update); });
+  function update() {
+    localStorage.setItem(KEY, JSON.stringify(boxes.map(b => b.checked)));
+    const pct = Math.round(100 * boxes.filter(b => b.checked).length / boxes.length);
+    document.getElementById("bar").style.width = pct + "%";
+    document.getElementById("pct").textContent = pct + "% LISTA";
+  }
+  update();
+</script>
+</body>
+</html>
